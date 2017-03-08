@@ -21,6 +21,24 @@ var uploadArea = new UploadArea('myDragDrop', {sendTo:'https://myurl.com'});
 </script>
 ```
 
+Want to handle the files yourself, or get more information about them? No problem! Just send in a function as one of the options, and it will be passed the list of File objects for handling!
+```html
+<div id="UploadAreaProgress"></div>
+<div id="myDragDrop">Drag here</div>
+
+<script>
+var uploadArea = new UploadArea('myDragDrop', {
+    sendTo:'https://myurl.com',
+    upload: function(files) {
+        //This method will override the existing upload method
+    },
+    onFilesReceived(files) {
+        //This method will be called alongside the upload method;
+    }
+});
+</script>
+```
+
 That's it so far! Stay tuned for some new features to be added and refactors to be made!
 
 WARNING: This currently sets global function variables, as I am learning as I write it. Now that I have something mostly functional, I can begin the refactor process and make this beast more self-contained.
