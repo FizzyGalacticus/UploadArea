@@ -1,0 +1,32 @@
+{
+  "name": "uploadarea",
+  "version": "1.0.0",
+  "description": "A simple to use Vanilla JS drag and drop file uploader",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FizzyGalacticus/UploadArea.git"
+  },
+  "keywords": [
+    "Drag",
+    "and",
+    "drop",
+    "file",
+    "uploader"
+  ],
+  "author": "Dustin L. Dodson",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/FizzyGalacticus/UploadArea/issues"
+  },
+  "homepage": "https://github.com/FizzyGalacticus/UploadArea#readme",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^2.0.1"
+  }
+}
