@@ -2,7 +2,7 @@
 
 This project is to (hopefully) become an extremely easy to use, fully customizable drag-and-drop file upload handler written in Vanilla JS.
 
-Currently, all you need to do is create a ```<div>``` with an id, then create a new ```UploadArea``` object with the id and page to POST to specified:
+All you need to do to get started is create a ```<div>``` with an id, then create a new ```UploadArea``` object with the id and page to POST to specified in the options:
 
 ```html
 <div id="myDragDrop">Drag Here</div>
@@ -21,48 +21,14 @@ var uploadArea = new UploadArea('myDragDrop', {sendTo:'https://myurl.com'});
 </script>
 ```
 
-Want to handle the files yourself, or get more information about them? No problem! Just send in a function as one of the options, and it will be passed the list of File objects for handling!
-```html
-<div id="UploadAreaProgress"></div>
-<div id="myDragDrop">Drag here</div>
-
-<script>
-var uploadArea = new UploadArea('myDragDrop', {
-    sendTo:'https://myurl.com',
-    upload: function(files) {
-        //This method will override the existing upload method
-        //Must send progress report to UploadArea
-        uploadArea.onProgress(progressEvent);
-    },
-    onFilesReceived(files) {
-        //This method will be called alongside the upload method;
-    }
-});
-</script>
-```
-
-You can even use your own upload AND progress functions:
-
-```html
-<div id="UploadAreaProgress"></div>
-<div id="myDragDrop">Drag here</div>
-
-<script>
-var uploadArea = new UploadArea('myDragDrop', {
-    sendTo:'https://myurl.com',
-    progress: function(progressEvent) {
-        //progressEvent must contain 'lengthComputable', 'loaded', and 'total' values.
-    },
-    upload: function(files) {
-        //This method will override the existing upload method
-        //Must send progress report to UploadArea
-        this.progress(progressEvent);
-    },
-    onFilesReceived(files) {
-        //This method will be called alongside the upload method;
-    }
-});
-</script>
-```
-
-That's it so far! Stay tuned for some new features to be added and refactors to be made!
+Here is a full list of options/functions that can be passed to the constuctor:
+|Name|Type|Description|
+|---|---|---|
+|sendTo|string|URL to post files to. By default this is ```https://posttestserver.com/post.php```.|
+|allowDrop|boolean|Default value is ```true```. When true, allows users to drag and drop files into the UploadArea for uploading.|
+|upload|function|When set, this is called instead of the UploadArea default upload function. It is passed a list of File objects which can be used for custom uploading.|
+|progress|function|Function to be called when upload progress is made. When overridden without the upload function being overridden, this is passed an XMLHttpRequest progress event.|
+|progressColor|string|Default value is ```green```. Color for the progress circle that appears when uploading. Possible values are ```blue```, ```green```, and ```orange```.|
+|complete|function|Called when upload has completed successfully and is passed the response message from the server.|
+|error|function|Called when an error occurs during the upload process and is passed the full response from the server.|
+|allowMultiple|boolean|Default value is ```true```. When true, UploadArea will allow multiple file uploads at the same time. When false, only a single file is allowed. When multiple files are dropped onto the UploadArea and this is false, only the first file in the array is sent.|
