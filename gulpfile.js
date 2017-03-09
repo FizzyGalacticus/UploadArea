@@ -13,7 +13,7 @@ gulp.task('script-min', function() {
 });
 
 gulp.task('watch', function() {
-	gulp.watch('www/**', ['script-min']);
+	gulp.watch('src/**', ['script-min']);
 });
 
 gulp.task('default', ['script-min', 'watch']);
