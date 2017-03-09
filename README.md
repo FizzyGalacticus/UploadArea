@@ -31,6 +31,32 @@ var uploadArea = new UploadArea('myDragDrop', {
     sendTo:'https://myurl.com',
     upload: function(files) {
         //This method will override the existing upload method
+        //Must send progress report to UploadArea
+        uploadArea.onProgress(progressEvent);
+    },
+    onFilesReceived(files) {
+        //This method will be called alongside the upload method;
+    }
+});
+</script>
+```
+
+You can even use your own upload AND progress functions:
+
+```html
+<div id="UploadAreaProgress"></div>
+<div id="myDragDrop">Drag here</div>
+
+<script>
+var uploadArea = new UploadArea('myDragDrop', {
+    sendTo:'https://myurl.com',
+    progress: function(progressEvent) {
+        //progressEvent must contain 'lengthComputable', 'loaded', and 'total' values.
+    },
+    upload: function(files) {
+        //This method will override the existing upload method
+        //Must send progress report to UploadArea
+        this.progress(progressEvent);
     },
     onFilesReceived(files) {
         //This method will be called alongside the upload method;
