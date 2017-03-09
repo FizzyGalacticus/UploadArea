@@ -40,5 +40,3 @@ var uploadArea = new UploadArea('myDragDrop', {
 ```
 
 That's it so far! Stay tuned for some new features to be added and refactors to be made!
-
-WARNING: This currently sets global function variables, as I am learning as I write it. Now that I have something mostly functional, I can begin the refactor process and make this beast more self-contained.
