@@ -18,7 +18,7 @@
     "uploader"
   ],
   "author": "Dustin L. Dodson",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/FizzyGalacticus/UploadArea/issues"
   },
