@@ -1,6 +1,6 @@
 {
   "name": "uploadarea",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple to use Vanilla JS drag and drop file uploader",
   "main": "gulpfile.js",
   "scripts": {
