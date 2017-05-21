@@ -6,199 +6,192 @@ if(!document.getElementById('css-percentage-circle')) {
     document.head.appendChild(link);
 }
 
-UploadArea = function(divId, options) {
-	var self     = this;
-	self.divId   = divId;
-	self.options = {
-		allowDrop: true,
-		allowMultiple: true,
-		sendTo: 'https://posttestserver.com/post.php',
-		progressArea: 'UploadAreaProgress',
-		progressColor: 'green',
-		onFilesReceived: function(files) {
-			//
+class UploadArea {
+	constructor(divId, options) {
+		this.divId   = divId;
+		this.options = {
+			allowDrop: true,
+			allowMultiple: true,
+			sendTo: 'https://posttestserver.com/post.php',
+			progressArea: 'UploadAreaProgress',
+			progressColor: 'green',
+			onFilesReceived: (files) => {
+				//
+			}
+		};
+		this.previousProgressPercentage = 0;
+
+		if(options) {
+			let optionkeys = Object.keys(options);
+			for(let i = 0; i < optionkeys.length; i++) {
+				this.options[optionkeys[i]] = options[optionkeys[i]];
+			}
+		}
+
+		let uploadArea = document.getElementById(this.divId);
+		if(uploadArea) {
+			uploadArea.addEventListener('dragover', (event) => {this.ondragover(event);});
+			uploadArea.addEventListener('drop', (event) => {this.ondrop(event);});
+			uploadArea.addEventListener('click', (event) => {
+				let fileInput = document.getElementById('fileInput');
+				fileInput.click();
+			});
+			uploadArea.style.cursor = 'pointer';
+
+			let fileInput           = document.createElement('input');
+			fileInput.type          = 'file';
+			fileInput.style.display = 'none';
+			fileInput.id            = 'fileInput';
+			if(this.options.allowMultiple) fileInput.setAttribute('multiple', '');
+			fileInput.addEventListener('change', (event) => {this.handleFiles(fileInput.files);});
+			uploadArea.appendChild(fileInput);
+		}
+
+		let loadingArea = document.getElementById(this.options.progressArea);
+		if(loadingArea) {
+			UploadArea.hideElement(this.options.progressArea);
+			loadingArea.innerHTML = ('<div id="cssProgressArea" class="c100 p0 ' + this.options.progressColor + '"><span id="cssProgressAreaSpan"></span><div class="slice">' +
+									'<div class="bar"></div><div class="fill"></div></div></div>');
+		}
+	}
+
+	ondragover(event) {
+		event.preventDefault();
+	};
+
+	handleFiles(files) {
+		console.log('Handling files: ' + files);
+		this.options.onFilesReceived(files);
+
+	    if(this.options.upload)
+	    	this.options.upload(files);
+	    else
+	    	this.upload(files);
+	};
+
+	ondrop(event) {
+		if(this.options.allowDrop) {
+			event.preventDefault();
+			let dataTransfer = event.dataTransfer;
+
+		    if(dataTransfer.items) {
+		        let files = [];
+			    if(this.options.allowMultiple) {
+			    	for(let i = 0; i < dataTransfer.items.length; i++) {
+			            let item = dataTransfer.items[i];
+			            if(item.kind == "file") {
+			                let file = item.getAsFile();
+			                files.push(file);
+			            }
+			        }
+			    }
+			    else if(dataTransfer.items.length > 0)
+			    	files.push(dataTransfer.items[0].getAsFile());
+
+			    console.log(files);
+		        
+		        this.handleFiles(files);
+		    }
 		}
 	};
 
-	self.previousProgressPercentage = 0;
-
-	if(!divId) {
-		console.error('divId not set... ABORTING!');
-		return;
-	}
-
-	if(options) {
-		optionkeys = Object.keys(options);
-		for(var i = 0; i < optionkeys.length; i++) {
-			self.options[optionkeys[i]] = options[optionkeys[i]];
+	static hideElement(elemId) {
+		let elem = document.getElementById(elemId);
+		if(elem) {
+			elem.style.display = 'none';
 		}
-	}
+	};
 
-	var uploadArea = document.getElementById(self.divId);
-	if(uploadArea) {
-		uploadArea.addEventListener('dragover', function(event) {self.ondragover(event);});
-		uploadArea.addEventListener('drop', function(event) {self.ondrop(event);});
-		uploadArea.addEventListener('click', function(event) {
-			var fileInput = document.getElementById('fileInput');
-			fileInput.click();
-		});
-		uploadArea.style.cursor = 'pointer';
+	static showElement(elemId) {
+		let elem = document.getElementById(elemId);
+		if(elem) {
+			elem.style.display = 'block';
+		}
+	};
 
-		var fileInput           = document.createElement('input');
-		fileInput.type          = 'file';
-		fileInput.style.display = 'none';
-		fileInput.id            = 'fileInput';
-		if(self.options.allowMultiple) fileInput.setAttribute('multiple', '');
-		fileInput.addEventListener('change', function(event) {self.handleFiles(this.files);});
-		uploadArea.appendChild(fileInput);
-	}
-
-	var loadingArea = document.getElementById(self.options.progressArea);
-	if(loadingArea) {
-		UploadArea.hideElement(self.options.progressArea);
-		loadingArea.innerHTML = ('<div id="cssProgressArea" class="c100 p0 ' + self.options.progressColor + '"><span id="cssProgressAreaSpan"></span><div class="slice">' +
-								'<div class="bar"></div><div class="fill"></div></div></div>');
-	}
-};
-
-UploadArea.prototype.ondragover = function(event) {
-	event.preventDefault();
-};
-
-UploadArea.prototype.handleFiles = function(files) {
-	this.options.onFilesReceived(files);
-
-    if(this.options.upload)
-    	this.options.upload(files);
-    else
-    	this.upload(files);
-};
-
-UploadArea.prototype.ondrop = function(event) {
-	if(this.options.allowDrop) {
-		var self = this;
-		event.preventDefault();
-		var dataTransfer = event.dataTransfer;
-
-	    if(dataTransfer.items) {
-	        var files = [];
-		    if(self.multiple) {
-		    	for(var i = 0; i < dataTransfer.items.length; i++) {
-		            var item = dataTransfer.items[i];
-		            if(item.kind == "file") {
-		                var file = item.getAsFile();
-		                files.push(file);
-		            }
-		        }
-		    }
-		    else if(dataTransfer.items.length > 0)
-		    	files.push(dataTransfer.items[0].getAsFile());
-	        
-	        self.handleFiles(files);
-	    }
-	}
-};
-
-UploadArea.hideElement = function(elemId) {
-	var elem = document.getElementById(elemId);
-	if(elem) {
-		elem.style.display = 'none';
-	}
-};
-
-UploadArea.showElement = function(elemId) {
-	var elem = document.getElementById(elemId);
-	if(elem) {
-		elem.style.display = 'block';
-	}
-};
-
-UploadArea.prototype.resetProgress = function() {
-	var progressArea    = document.getElementById('cssProgressArea');
-	if(progressArea) {
-		var progressSpan = document.getElementById('cssProgressAreaSpan');
-		progressSpan.innerHTML = 0 + '%';
-
-		progressArea.classList.remove('p100');
-		progressArea.classList.add('p0');
-	}
-};
-
-UploadArea.prototype.onComplete = function(response) {
-	if(this.options.complete)
-		this.options.complete(response);
-	else {
-		//Do Stuff here
-	}
-};
-
-UploadArea.prototype.onError = function(response) {
-	if(this.options.complete)
-		this.options.complete(response);
-	else {
-
-	}
-};
-
-UploadArea.prototype.onProgress = function(progressEvent) {
-	var self = this;
-	UploadArea.hideElement(self.divId);
-	UploadArea.showElement(self.options.progressArea);
-	if (progressEvent.lengthComputable) {
-		var percentComplete = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
-		var progressArea    = document.getElementById('cssProgressArea');
-
+	resetProgress() {
+		let progressArea    = document.getElementById('cssProgressArea');
 		if(progressArea) {
-			var progressSpan = document.getElementById('cssProgressAreaSpan');
-			progressSpan.innerHTML = percentComplete + '%';
+			let progressSpan = document.getElementById('cssProgressAreaSpan');
+			progressSpan.innerHTML = 0 + '%';
 
-			progressArea.classList.remove('p' + self.previousProgressPercentage);
-			progressArea.classList.add('p' + percentComplete);
+			progressArea.classList.remove('p100');
+			progressArea.classList.add('p0');
 		}
+	};
 
-		if(percentComplete == 100) {
-			UploadArea.showElement(self.divId);
-			UploadArea.hideElement(self.options.progressArea);
-			self.previousProgressPercentage = 0;
+	onComplete(response) {
+		if(this.options.complete)
+			this.options.complete(response);
+		else {
+			//Do Stuff here
 		}
+	};
 
-		self.previousProgressPercentage = percentComplete;
-	}
-};
+	onError(response) {
+		if(this.options.complete)
+			this.options.complete(response);
+		else {
 
-UploadArea.prototype.upload = function(files) {
-	var self = this;
-	if(files && files.length > 0) {
+		}
+	};
+
+	onProgress(progressEvent) {
+		UploadArea.hideElement(this.divId);
+		UploadArea.showElement(this.options.progressArea);
+		if (progressEvent.lengthComputable) {
+			let percentComplete = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
+			let progressArea    = document.getElementById('cssProgressArea');
+
+			if(progressArea) {
+				let progressSpan = document.getElementById('cssProgressAreaSpan');
+				progressSpan.innerHTML = percentComplete + '%';
+
+				progressArea.classList.remove('p' + this.previousProgressPercentage);
+				progressArea.classList.add('p' + percentComplete);
+			}
+
+			if(percentComplete == 100) {
+				UploadArea.showElement(this.divId);
+				UploadArea.hideElement(this.options.progressArea);
+				this.previousProgressPercentage = 0;
+			}
+
+			this.previousProgressPercentage = percentComplete;
+		}
+	};
+
+	upload(files) {
 		if(files && files.length > 0) {
-			var fileData = new FormData();
+			let fileData = new FormData();
 
-			for(var i = 0; i < files.length; i++) {
-				var file = files[i];
+			for(let i = 0; i < files.length; i++) {
+				let file = files[i];
 				fileData.append(file.name, file);
 			}
 
-			var uploadRequest = new XMLHttpRequest();
-			uploadRequest.open('POST', self.options.sendTo, true);
+			let uploadRequest = new XMLHttpRequest();
+			uploadRequest.open('POST', this.options.sendTo, true);
 
-			uploadRequest.upload.onprogress = function(event){
-				if(self.options.progress)
-					self.options.progress(event);
-				else self.onProgress(event);
+			uploadRequest.upload.onprogress = (event) => {
+				if(this.options.progress)
+					this.options.progress(event);
+				else this.onProgress(event);
 			};
 
-			uploadRequest.onload = function() {
-				if (this.status == 200)
-					self.onComplete(this.responseText);
+			uploadRequest.onload = () => {
+				if (uploadRequest.status == 200)
+					this.onComplete(uploadRequest.responseText);
 				else
-					self.onError(this.responseText);
+					this.onError(uploadRequest.responseText);
 			};
 			uploadRequest.send(fileData);
 
-			if(!self.options.progress) {
-				self.resetProgress();
-				UploadArea.showElement(self.options.progressArea);
-				UploadArea.hideElement(self.divId);
+			if(!this.options.progress) {
+				this.resetProgress();
+				UploadArea.showElement(this.options.progressArea);
+				UploadArea.hideElement(this.divId);
 			}
 		}
-	}
-};
+	};
+}
