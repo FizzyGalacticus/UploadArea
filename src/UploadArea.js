@@ -60,7 +60,6 @@ class UploadArea {
 	};
 
 	handleFiles(files) {
-		console.log('Handling files: ' + files);
 		this.options.onFilesReceived(files);
 
 	    if(this.options.upload)
@@ -87,8 +86,6 @@ class UploadArea {
 			    }
 			    else if(dataTransfer.items.length > 0)
 			    	files.push(dataTransfer.items[0].getAsFile());
-
-			    console.log(files);
 		        
 		        this.handleFiles(files);
 		    }
@@ -161,13 +158,19 @@ class UploadArea {
 		}
 	};
 
-	upload(files) {
+	upload(files, additionalData) {
 		if(files && files.length > 0) {
 			let fileData = new FormData();
 
 			for(let i = 0; i < files.length; i++) {
 				let file = files[i];
 				fileData.append(file.name, file);
+			}
+
+			if(additionalData) {
+				let keys = Object.keys(additionalData);
+				for(let i = 0; i < keys.length; i++)
+					fileData.append(keys[i], additionalData[keys[i]]);
 			}
 
 			let uploadRequest = new XMLHttpRequest();
