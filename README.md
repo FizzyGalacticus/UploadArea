@@ -1,6 +1,6 @@
 # UploadArea
 
-This project is to (hopefully) become an extremely easy to use, fully customizable drag-and-drop file upload handler written in Vanilla JS.
+This project is to (hopefully) become an extremely easy to use, fully customizable drag-and-drop file upload handler written in ES6 and compiled down to ES5.
 
 All you need to do to get started is create a ```<div>``` with an id, then create a new ```UploadArea``` object with the id and page to POST to specified in the options:
 
