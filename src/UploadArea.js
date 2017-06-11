@@ -8,8 +8,10 @@ if(!document.getElementById('css-percentage-circle')) {
 
 class UploadArea {
 	constructor(divId, options) {
+		this.instanceNumber = ++(UploadArea.instances);
 		this.divId   = divId;
 		this.options = {
+			required: false,
 			allowDrop: true,
 			allowMultiple: true,
 			sendTo: 'https://posttestserver.com/post.php',
@@ -33,7 +35,7 @@ class UploadArea {
 			uploadArea.addEventListener('dragover', (event) => {this.ondragover(event);});
 			uploadArea.addEventListener('drop', (event) => {this.ondrop(event);});
 			uploadArea.addEventListener('click', (event) => {
-				let fileInput = document.getElementById('fileInput');
+				let fileInput = document.getElementById('uploadAreaFileInput' + this.instanceNumber);
 				fileInput.click();
 			});
 			uploadArea.style.cursor = 'pointer';
@@ -41,7 +43,8 @@ class UploadArea {
 			let fileInput           = document.createElement('input');
 			fileInput.type          = 'file';
 			fileInput.style.display = 'none';
-			fileInput.id            = 'fileInput';
+			fileInput.id            = 'uploadAreaFileInput' + this.instanceNumber;
+			if(this.options.required) fileInput.setAttribute('required', '');
 			if(this.options.allowMultiple) fileInput.setAttribute('multiple', '');
 			fileInput.addEventListener('change', (event) => {this.handleFiles(fileInput.files);});
 			uploadArea.appendChild(fileInput);
@@ -57,7 +60,7 @@ class UploadArea {
 
 	ondragover(event) {
 		event.preventDefault();
-	};
+	}
 
 	handleFiles(files) {
 		this.options.onFilesReceived(files);
@@ -66,7 +69,7 @@ class UploadArea {
 	    	this.options.upload(files);
 	    else
 	    	this.upload(files);
-	};
+	}
 
 	ondrop(event) {
 		if(this.options.allowDrop) {
@@ -90,21 +93,21 @@ class UploadArea {
 		        this.handleFiles(files);
 		    }
 		}
-	};
+	}
 
 	static hideElement(elemId) {
 		let elem = document.getElementById(elemId);
 		if(elem) {
 			elem.style.display = 'none';
 		}
-	};
+	}
 
 	static showElement(elemId) {
 		let elem = document.getElementById(elemId);
 		if(elem) {
 			elem.style.display = 'block';
 		}
-	};
+	}
 
 	resetProgress() {
 		let progressArea    = document.getElementById('cssProgressArea');
@@ -115,7 +118,7 @@ class UploadArea {
 			progressArea.classList.remove('p100');
 			progressArea.classList.add('p0');
 		}
-	};
+	}
 
 	onComplete(response) {
 		if(this.options.complete)
@@ -123,7 +126,7 @@ class UploadArea {
 		else {
 			//Do Stuff here
 		}
-	};
+	}
 
 	onError(response) {
 		if(this.options.complete)
@@ -131,7 +134,7 @@ class UploadArea {
 		else {
 
 		}
-	};
+	}
 
 	onProgress(progressEvent) {
 		UploadArea.hideElement(this.divId);
@@ -156,7 +159,7 @@ class UploadArea {
 
 			this.previousProgressPercentage = percentComplete;
 		}
-	};
+	}
 
 	upload(files, additionalData) {
 		if(files && files.length > 0) {
@@ -196,5 +199,7 @@ class UploadArea {
 				UploadArea.hideElement(this.divId);
 			}
 		}
-	};
+	}
 }
+
+UploadArea.instances = 0;
