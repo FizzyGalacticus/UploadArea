@@ -129,8 +129,8 @@ class UploadArea {
 	}
 
 	onError(response) {
-		if(this.options.complete)
-			this.options.complete(response);
+		if(this.options.error)
+			this.options.error(response);
 		else {
 
 		}
