@@ -9,7 +9,7 @@ gulp.task('script-min', function() {
 	// .pipe(jshint())
 	.pipe(concat('UploadArea.js'))
 	.pipe(babel({
-		presets: ['es2015']
+		presets: ['env']
 	}))
 	.pipe(uglify())
 	.pipe(rename({suffix:'.min'}))
