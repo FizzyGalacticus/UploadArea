@@ -6,7 +6,6 @@ var gulp     = require('gulp'),
 
 gulp.task('script-min', function() {
 	gulp.src('src/**/*.js')
-	// .pipe(jshint())
 	.pipe(concat('UploadArea.js'))
 	.pipe(babel({
 		presets: ['env']

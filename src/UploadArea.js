@@ -1,11 +1,3 @@
-if(!document.getElementById('css-percentage-circle')) {
-	var link  = document.createElement('link');
-	link.id   = 'css-percentage-circle';
-	link.rel  = 'stylesheet';
-	link.href = 'https://cdn.rawgit.com/afuersch/css-percentage-circle/c9f4ea10/css/circle.css';
-    document.head.appendChild(link);
-}
-
 class UploadArea {
 	constructor(divId, options) {
 		this.instanceNumber = ++(UploadArea.instances);
@@ -15,8 +7,6 @@ class UploadArea {
 			allowDrop: true,
 			allowMultiple: true,
 			sendTo: 'https://posttestserver.com/post.php',
-			progressArea: 'UploadAreaProgress',
-			progressColor: 'green',
 			onFilesReceived: (files) => {
 				//
 			}
@@ -49,13 +39,6 @@ class UploadArea {
 			fileInput.addEventListener('change', (event) => {this.handleFiles(fileInput.files);});
 			uploadArea.appendChild(fileInput);
 		}
-
-		let loadingArea = document.getElementById(this.options.progressArea);
-		if(loadingArea) {
-			UploadArea.hideElement(this.options.progressArea);
-			loadingArea.innerHTML = ('<div id="cssProgressArea" class="c100 p0 ' + this.options.progressColor + '"><span id="cssProgressAreaSpan"></span><div class="slice">' +
-									'<div class="bar"></div><div class="fill"></div></div></div>');
-		}
 	}
 
 	ondragover(event) {
@@ -63,6 +46,15 @@ class UploadArea {
 	}
 
 	handleFiles(files) {
+		if(!Array.isArray(files)) {
+			let fileArr = [];
+
+			for(let i = 0; i < files.length; i++)
+				fileArr.push(files.item(i));
+
+			files = fileArr;
+		}
+
 		this.options.onFilesReceived(files);
 
 	    if(this.options.upload)
@@ -109,17 +101,6 @@ class UploadArea {
 		}
 	}
 
-	resetProgress() {
-		let progressArea    = document.getElementById('cssProgressArea');
-		if(progressArea) {
-			let progressSpan = document.getElementById('cssProgressAreaSpan');
-			progressSpan.innerHTML = 0 + '%';
-
-			progressArea.classList.remove('p100');
-			progressArea.classList.add('p0');
-		}
-	}
-
 	onComplete(response) {
 		if(this.options.complete)
 			this.options.complete(response);
@@ -136,32 +117,7 @@ class UploadArea {
 		}
 	}
 
-	onProgress(progressEvent) {
-		UploadArea.hideElement(this.divId);
-		UploadArea.showElement(this.options.progressArea);
-		if (progressEvent.lengthComputable) {
-			let percentComplete = Math.floor((progressEvent.loaded / progressEvent.total) * 100);
-			let progressArea    = document.getElementById('cssProgressArea');
-
-			if(progressArea) {
-				let progressSpan = document.getElementById('cssProgressAreaSpan');
-				progressSpan.innerHTML = percentComplete + '%';
-
-				progressArea.classList.remove('p' + this.previousProgressPercentage);
-				progressArea.classList.add('p' + percentComplete);
-			}
-
-			if(percentComplete == 100) {
-				UploadArea.showElement(this.divId);
-				UploadArea.hideElement(this.options.progressArea);
-				this.previousProgressPercentage = 0;
-			}
-
-			this.previousProgressPercentage = percentComplete;
-		}
-	}
-
-	upload(files, additionalData) {
+	upload(files) {
 		if(files && files.length > 0) {
 			let fileData = new FormData();
 
@@ -182,7 +138,6 @@ class UploadArea {
 			uploadRequest.upload.onprogress = (event) => {
 				if(this.options.progress)
 					this.options.progress(event);
-				else this.onProgress(event);
 			};
 
 			uploadRequest.onload = () => {
@@ -192,12 +147,6 @@ class UploadArea {
 					this.onError(uploadRequest.responseText);
 			};
 			uploadRequest.send(fileData);
-
-			if(!this.options.progress) {
-				this.resetProgress();
-				UploadArea.showElement(this.options.progressArea);
-				UploadArea.hideElement(this.divId);
-			}
 		}
 	}
 }
