@@ -22,6 +22,7 @@ var uploadArea = new UploadArea('myDragDrop', {sendTo:'https://myurl.com'});
 ```
 
 Here is a full list of options/functions that can be passed to the constuctor:
+
 **Name**|**Type**|**Description**
 -----|-----|-----
 sendTo|string|URL to post files to. By default this is ```https://posttestserver.com/post.php```.
