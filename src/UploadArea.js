@@ -1,7 +1,7 @@
 class UploadArea {
-	constructor(divId, options) {
+	constructor(divId = 'uploadArea', options) {
 		this.instanceNumber = ++(UploadArea.instances);
-		this.divId   = divId;
+		this.divId = divId;
 		this.options = {
 			required: false,
 			allowDrop: true,
@@ -9,36 +9,64 @@ class UploadArea {
 			sendTo: 'https://posttestserver.com/post.php',
 			onFilesReceived: (files) => {
 				//
-			}
+			},
 		};
 		this.previousProgressPercentage = 0;
 
 		if(options) {
 			let optionkeys = Object.keys(options);
-			for(let i = 0; i < optionkeys.length; i++) {
+			for(let i = 0; i < optionkeys.length; i++)
 				this.options[optionkeys[i]] = options[optionkeys[i]];
-			}
 		}
 
+		this.init();
+	}
+
+	init() {
 		let uploadArea = document.getElementById(this.divId);
 		if(uploadArea) {
-			uploadArea.addEventListener('dragover', (event) => {this.ondragover(event);});
-			uploadArea.addEventListener('drop', (event) => {this.ondrop(event);});
-			uploadArea.addEventListener('click', (event) => {
-				let fileInput = document.getElementById('uploadAreaFileInput' + this.instanceNumber);
-				fileInput.click();
-			});
-			uploadArea.style.cursor = 'pointer';
+			this.initUploadArea(uploadArea);
+			this.initFileInput();
 
-			let fileInput           = document.createElement('input');
-			fileInput.type          = 'file';
-			fileInput.style.display = 'none';
-			fileInput.id            = 'uploadAreaFileInput' + this.instanceNumber;
-			if(this.options.required) fileInput.setAttribute('required', '');
-			if(this.options.allowMultiple) fileInput.setAttribute('multiple', '');
-			fileInput.addEventListener('change', (event) => {this.handleFiles(fileInput.files);});
-			uploadArea.appendChild(fileInput);
+			this.uploadArea.appendChild(this.fileInput);
 		}
+	}
+
+	initUploadArea(uploadArea) {
+		this.uploadArea = uploadArea;
+
+		this.uploadArea.addEventListener('dragover', (event) => {
+			this.ondragover(event);
+		});
+
+		this.uploadArea.addEventListener('drop', (event) => {
+			this.ondrop(event);
+		});
+
+		this.uploadArea.addEventListener('click', (event) => {
+			this.fileInput.click();
+		});
+
+		this.uploadArea.style.cursor = 'pointer';
+	}
+
+	initFileInput() {
+		this.fileInput = document.createElement('input');
+
+		this.fileInput.type = 'file';
+		this.fileInput.style.display = 'none';
+		this.fileInput.id = `uploadAreaFileInput${this.instanceNumber}`;
+
+		if(this.options.required)
+			this.fileInput.setAttribute('required', '');
+
+		if(this.options.allowMultiple)
+			this.fileInput.setAttribute('multiple', '');
+
+		this.fileInput.addEventListener('change', (event) => {
+			this.handleFiles(this.fileInput.files);
+			this.fileInput.value = null;
+		});
 	}
 
 	ondragover(event) {
@@ -55,12 +83,14 @@ class UploadArea {
 			files = fileArr;
 		}
 
+		console.log(files);
+
 		this.options.onFilesReceived(files);
 
-	    if(this.options.upload)
-	    	this.options.upload(files);
-	    else
-	    	this.upload(files);
+		if(this.options.upload)
+			this.options.upload(files);
+		else
+			this.upload(files);
 	}
 
 	ondrop(event) {
@@ -68,44 +98,42 @@ class UploadArea {
 			event.preventDefault();
 			let dataTransfer = event.dataTransfer;
 
-		    if(dataTransfer.items) {
-		        let files = [];
-			    if(this.options.allowMultiple) {
-			    	for(let i = 0; i < dataTransfer.items.length; i++) {
-			            let item = dataTransfer.items[i];
-			            if(item.kind == "file") {
-			                let file = item.getAsFile();
-			                files.push(file);
-			            }
-			        }
-			    }
-			    else if(dataTransfer.items.length > 0)
-			    	files.push(dataTransfer.items[0].getAsFile());
-		        
-		        this.handleFiles(files);
-		    }
+			if(dataTransfer.items) {
+				let files = [];
+				if(this.options.allowMultiple) {
+					for(let i = 0; i < dataTransfer.items.length; i++) {
+						let item = dataTransfer.items[i];
+						if(item.kind == 'file') {
+							let file = item.getAsFile();
+							files.push(file);
+						}
+					}
+				}
+				else if(dataTransfer.items.length > 0)
+					files.push(dataTransfer.items[0].getAsFile());
+				
+				this.handleFiles(files);
+			}
 		}
 	}
 
 	static hideElement(elemId) {
 		let elem = document.getElementById(elemId);
-		if(elem) {
+		if(elem)
 			elem.style.display = 'none';
-		}
 	}
 
 	static showElement(elemId) {
 		let elem = document.getElementById(elemId);
-		if(elem) {
+		if(elem)
 			elem.style.display = 'block';
-		}
 	}
 
 	onComplete(response) {
 		if(this.options.complete)
 			this.options.complete(response);
 		else {
-			//Do Stuff here
+			// Do Something
 		}
 	}
 
@@ -121,16 +149,9 @@ class UploadArea {
 		if(files && files.length > 0) {
 			let fileData = new FormData();
 
-			for(let i = 0; i < files.length; i++) {
-				let file = files[i];
+			files.forEach((file) => {
 				fileData.append(file.name, file);
-			}
-
-			if(additionalData) {
-				let keys = Object.keys(additionalData);
-				for(let i = 0; i < keys.length; i++)
-					fileData.append(keys[i], additionalData[keys[i]]);
-			}
+			});
 
 			let uploadRequest = new XMLHttpRequest();
 			uploadRequest.open('POST', this.options.sendTo, true);
@@ -141,7 +162,7 @@ class UploadArea {
 			};
 
 			uploadRequest.onload = () => {
-				if (uploadRequest.status == 200)
+				if(uploadRequest.status == 200)
 					this.onComplete(uploadRequest.responseText);
 				else
 					this.onError(uploadRequest.responseText);
