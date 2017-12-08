@@ -13,10 +13,11 @@ class UploadArea {
 		};
 		this.previousProgressPercentage = 0;
 
-		if(options) {
-			let optionkeys = Object.keys(options);
-			for(let i = 0; i < optionkeys.length; i++)
-				this.options[optionkeys[i]] = options[optionkeys[i]];
+		if(options && typeof options == 'object') {
+			for(const key in options) {
+				if({}.hasOwnProperty.call(options, key))
+					this.options[key] = options[key];
+			}
 		}
 
 		this.init();
@@ -77,13 +78,11 @@ class UploadArea {
 		if(!Array.isArray(files)) {
 			let fileArr = [];
 
-			for(let i = 0; i < files.length; i++)
-				fileArr.push(files.item(i));
+			for(const file of files)
+				fileArr.push(file);
 
 			files = fileArr;
 		}
-
-		console.log(files);
 
 		this.options.onFilesReceived(files);
 
@@ -101,8 +100,7 @@ class UploadArea {
 			if(dataTransfer.items) {
 				let files = [];
 				if(this.options.allowMultiple) {
-					for(let i = 0; i < dataTransfer.items.length; i++) {
-						let item = dataTransfer.items[i];
+					for(const item of dataTransfer.items) {
 						if(item.kind == 'file') {
 							let file = item.getAsFile();
 							files.push(file);
@@ -149,9 +147,8 @@ class UploadArea {
 		if(files && files.length > 0) {
 			let fileData = new FormData();
 
-			files.forEach((file) => {
+			for(const file of files)
 				fileData.append(file.name, file);
-			});
 
 			let uploadRequest = new XMLHttpRequest();
 			uploadRequest.open('POST', this.options.sendTo, true);
@@ -167,6 +164,7 @@ class UploadArea {
 				else
 					this.onError(uploadRequest.responseText);
 			};
+
 			uploadRequest.send(fileData);
 		}
 	}
