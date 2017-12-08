@@ -11,15 +11,6 @@ All you need to do to get started is create a ```<div>``` with an id, then creat
 var uploadArea = new UploadArea('myDragDrop', {sendTo:'https://myurl.com'});
 </script>
 ```
-You can also have a progress bar that will hide/show on upload:
-```html
-<div id="UploadAreaProgress"></div>
-<div id="myDragDrop">Drag here</div>
-
-<script>
-var uploadArea = new UploadArea('myDragDrop', {sendTo:'https://myurl.com'});
-</script>
-```
 
 Here is a full list of options/functions that can be passed to the constuctor:
 
